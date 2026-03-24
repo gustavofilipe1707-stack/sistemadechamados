@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSR TELEFONIA | Desk Cloud v6.6</title>
+    <title>HSR TELEFONIA | Desk Cloud v6.7</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -23,6 +23,10 @@
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
         .val { font-size: 28px; font-weight: 800; color: var(--hsr-red); }
+        
+        /* BUSCA */
+        .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid var(--border); font-family: inherit; font-size: 14px; outline: none; }
+
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 20px;}
         th { background: #f1f5f9; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #1a1a2e; font-weight: 800; border-bottom: 2px solid #e2e8f0; }
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
@@ -70,7 +74,7 @@
         <i class="bi bi-check-circle-fill" style="font-size: 50px; color: #28a745;"></i>
         <h2>Chamado Gerado!</h2>
         <p>Protocolo: <strong id="display-id" style="color: var(--hsr-red);">#0000</strong></p>
-        <button class="btn-main btn-green" id="btn-whatsapp"><i class="bi bi-whatsapp"></i> ACOMPANHAR CHAMADO VIA WHATSAPP</button>
+        <button class="btn-main btn-green" id="btn-whatsapp"><i class="bi bi-whatsapp"></i> ACOMPANHAR VIA WHATSAPP</button>
         <button class="btn-main btn-outline" onclick="location.reload()">VOLTAR AO INÍCIO</button>
     </div>
 
@@ -91,6 +95,8 @@
             <div class="nav-item" onclick="alternarAbas('relatorios')"><i class="bi bi-file-earmark-check"></i> Histórico</div>
         </div>
         <div class="main">
+            <input type="text" id="admin-search" class="search-box" placeholder="🔍 Buscar por número, nome ou analista..." oninput="renderizar()">
+
             <div id="aba-dashboard">
                 <div class="stats-grid">
                     <div class="stat-card"><small>Gustavo (Mês)</small><div class="val" id="rank-gustavo" style="color:#10b981">0</div></div>
@@ -142,16 +148,15 @@
             const btn = document.getElementById('btn-enviar');
             btn.disabled = true; btn.innerText = "GERANDO...";
 
-            const dbRef = ref(db);
-            const snapshot = await get(child(dbRef, 'contador'));
+            const snapshot = await get(child(ref(db), 'contador'));
             let ticketId = snapshot.exists() ? snapshot.val() + 1 : 1001;
 
             const nome = document.getElementById('f-nome').value;
-            const cat = document.getElementById('f-categoria').value;
             if(!nome) { btn.disabled = false; btn.innerText = "ENVIAR CHAMADO"; return alert("Nome obrigatório."); }
 
             await push(ref(db, 'chamados'), {
-                ticketId, nome, categoria: cat, tipo: document.getElementById('f-tipo').value,
+                ticketId, nome, categoria: document.getElementById('f-categoria').value, 
+                tipo: document.getElementById('f-tipo').value,
                 agendamento: document.getElementById('f-data').value ? `${document.getElementById('f-data').value} às ${document.getElementById('f-hora').value}` : "",
                 desc: document.getElementById('f-desc').value, abertura: new Date().toLocaleString()
             });
@@ -159,12 +164,10 @@
             await set(ref(db, 'contador'), ticketId);
             document.getElementById('display-id').innerText = "#" + ticketId;
             
-            // Link do WhatsApp com número do chamado e nome
             document.getElementById('btn-whatsapp').onclick = () => {
-                const texto = encodeURIComponent(`Olá Gustavo, gostaria de acompanhar o chamado #${ticketId}. Solicitante: ${nome}`);
+                const texto = encodeURIComponent(`Olá Suporte, gostaria de acompanhar o chamado #${ticketId}. Solicitante: ${nome}`);
                 window.open(`https://wa.me/5511955951771?text=${texto}`);
             };
-
             mostrarTela('success-screen');
         };
 
@@ -188,38 +191,42 @@
 
         function iniciarMonitoramento() {
             onValue(ref(db, 'chamados'), (s) => {
-                const data = s.val() || {};
-                ativosCache = Object.keys(data).map(key => ({ fbId: key, ...data[key] }));
+                ativosCache = s.val() ? Object.keys(s.val()).map(k => ({ fbId: k, ...s.val()[k] })) : [];
                 renderizar();
             });
             onValue(ref(db, 'historico'), (s) => {
-                const data = s.val() || {};
-                historicoCache = Object.keys(data).map(key => ({ ...data[key] }));
+                historicoCache = s.val() ? Object.keys(s.val()).map(k => ({ ...s.val()[k] })) : [];
                 renderizar();
             });
         }
 
-        function renderizar() {
+        window.renderizar = () => {
+            const term = document.getElementById('admin-search').value.toLowerCase();
+            const currentMonth = new Date().getMonth();
+            let gCount = 0, lCount = 0;
+
             const tbodyAtivos = document.querySelector('#tabela-ativos tbody');
             tbodyAtivos.innerHTML = "";
             ativosCache.forEach(t => {
-                tbodyAtivos.innerHTML += `<tr><td><b>#${t.ticketId}</b> - ${t.nome}<br><small>${t.abertura}</small></td><td><span class="category-tag">${t.categoria}</span>${t.agendamento || t.desc}</td><td><button onclick="window.abrirModalBaixa('${t.fbId}','${t.ticketId}','${t.nome}','${t.categoria}','${t.desc}','${t.abertura}')" class="btn-red" style="padding:5px">BAIXA</button></td></tr>`;
+                if (String(t.ticketId).includes(term) || t.nome.toLowerCase().includes(term)) {
+                    tbodyAtivos.innerHTML += `<tr><td><b>#${t.ticketId}</b> - ${t.nome}<br><small>${t.abertura}</small></td><td><span class="category-tag">${t.categoria}</span>${t.agendamento || t.desc}</td><td><button onclick="window.abrirModalBaixa('${t.fbId}','${t.ticketId}','${t.nome}','${t.categoria}','${t.desc}','${t.abertura}')" class="btn-red" style="padding:5px">BAIXA</button></td></tr>`;
+                }
             });
 
-            const currentMonth = new Date().getMonth();
-            let gCount = 0, lCount = 0;
             const tbodyHist = document.querySelector('#tabela-historico tbody');
             tbodyHist.innerHTML = "";
             historicoCache.slice().reverse().forEach(t => {
                 if(t.mesRef === currentMonth) { if(t.analista === "Gustavo Filipe") gCount++; else lCount++; }
-                tbodyHist.innerHTML += `<tr><td>#${t.ticket}</td><td><b>${t.nome}</b><br>${t.analista}</td><td>${t.solucao}</td><td><small>IN: ${t.abertura}<br>OUT: ${t.finalizadoEm}</small></td></tr>`;
+                if (String(t.ticket).includes(term) || t.nome.toLowerCase().includes(term) || t.analista.toLowerCase().includes(term)) {
+                    tbodyHist.innerHTML += `<tr><td>#${t.ticket}</td><td><b>${t.nome}</b><br>${t.analista}</td><td>${t.solucao}</td><td><small>IN: ${t.abertura}<br>OUT: ${t.finalizadoEm}</small></td></tr>`;
+                }
             });
 
             document.getElementById('rank-gustavo').innerText = gCount;
             document.getElementById('rank-lucas').innerText = lCount;
             document.getElementById('count-ativos').innerText = ativosCache.length;
             document.getElementById('count-total').innerText = ativosCache.length + historicoCache.length;
-        }
+        };
     </script>
 </body>
 </html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSR TELEFONIA | Desk Cloud v6.3</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root { --hsr-red: #e30613; --bg: #f8fafc; --sidebar: #1e1e2d; --card: #ffffff; --border: #e2e8f0; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; color: #1e1e2d; }
+
+        /* --- TELAS --- */
+        #home-screen { position: fixed; inset: 0; background: var(--sidebar); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        #client-form, #success-screen, #modal-baixa { display: none; padding: 40px; max-width: 600px; margin: 40px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); border-top: 6px solid var(--hsr-red); text-align: center; }
+        #admin-panel { display: none; height: 100vh; grid-template-columns: 260px 1fr; }
+
+        .btn-main { width: 100%; padding: 15px; margin-top: 15px; border-radius: 10px; border: none; cursor: pointer; font-weight: 800; text-transform: uppercase; transition: 0.3s; }
+        .btn-red { background: var(--hsr-red); color: white; }
+        .btn-green { background: #25d366; color: white; }
+        .btn-outline { background: white; color: var(--sidebar); border: 2px solid var(--border); }
+        
+        /* --- ADMIN --- */
+        .sidebar { background: var(--sidebar); color: white; padding: 20px 0; }
+        .nav-item { padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #a2a3b7; transition: 0.3s; font-weight: 600; }
+        .nav-item:hover, .nav-item.active { background: #2b2b40; color: white; border-left: 4px solid var(--hsr-red); }
+        .main { padding: 30px; overflow-y: auto; }
+        
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
+        .val { font-size: 28px; font-weight: 800; color: var(--hsr-red); }
+
+        .search-container { margin-bottom: 20px; }
+        .search-bar { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.05); outline: none; font-family: inherit; font-weight: 600; box-sizing: border-box;}
+
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+        th { background: #f1f5f9; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #1a1a2e; font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
+        
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; }
+        .bg-imediato { background: #fee2e2; color: #991b1b; }
+        .bg-agendado { background: #fef3c7; color: #92400e; }
+        .category-tag { font-size: 11px; color: var(--hsr-red); font-weight: 700; display: block; }
+
+        #modal-baixa { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; width: 500px; display: none; text-align: left;}
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1999; display: none; }
+
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid var(--border); box-sizing: border-box; font-family: inherit;}
+        label { font-weight: 800; font-size: 12px; display: block; margin-top: 10px; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <div class="overlay" id="overlay"></div>
+
+    <div id="home-screen">
+        <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; width: 350px; border-top: 5px solid var(--hsr-red);">
+            <img src="https://hsr.com.br/wp-content/uploads/2022/10/logo-hsr-specialist-researchers.png" style="width: 140px; margin-bottom: 20px;">
+            <button class="btn-main btn-outline" onclick="mostrarTela('client-form')">ABRIR CHAMADO</button>
+            <button class="btn-main btn-red" onclick="loginAdmin()">ADMINISTRAÇÃO</button>
+        </div>
+    </div>
+
+    <div id="client-form">
+        <h2 style="text-align: left; margin:0 0 20px 0">Novo Chamado HSR</h2>
+        
+        <label>1. TIPO DE SOLICITAÇÃO</label>
+        <select id="f-tipo" onchange="toggleData()">
+            <option value="Imediato">Imediato (Urgente / Problema)</option>
+            <option value="Agendamento">Agendamento (Projetos / Treino)</option>
+        </select>
+
+        <div id="group-data" style="display:none;">
+            <label>DATA DO AGENDAMENTO</label>
+            <input type="date" id="f-data">
+        </div>
+
+        <label>2. CATEGORIA</label>
+        <select id="f-categoria">
+            <option>Criação de fila discador vonix</option>
+            <option>Criação de fila discador Fastdialer</option>
+            <option>Validação de fila</option>
+            <option>Criação de grupo</option>
+            <option>Configuração de grupo</option>
+            <option>Analise de chamadas</option>
+            <option>Criação de ramal</option>
+            <option>Validação de porta 50/60</option>
+            <option>Configuração de audio</option>
+            <option>Verificação de maquina</option>
+            <option>Analise de estrutura</option>
+            <option>Treinamento HSR</option>
+            <option>Treinamento Fornecedores</option>
+            <option>Agendamento incio de projeto</option>
+        </select>
+
+        <label>3. SEU NOME</label><input type="text" id="f-nome" placeholder="Nome ou Departamento">
+        <label>4. DESCRIÇÃO</label><textarea id="f-desc" rows="3" placeholder="Detalhes da solicitação..."></textarea>
+        
+        <button class="btn-main btn-red" id="btn-enviar">ENVIAR CHAMADO</button>
+        <button class="btn-main btn-outline" onclick="location.reload()">VOLTAR</button>
+    </div>
+
+    <div id="success-screen">
+        <i class="bi bi-check-circle-fill" style="font-size: 50px; color: #28a745;"></i>
+        <h2>Chamado Gerado!</h2>
+        <p>Número do Chamado: <strong id="display-id" style="color: var(--hsr-red);">#0000</strong></p>
+        <button class="btn-main btn-green" id="btn-whatsapp">
+            <i class="bi bi-whatsapp"></i> ACOMPANHAR CHAMADO VIA WHATSAPP
+        </button>
+        <button class="btn-main btn-outline" onclick="location.reload()">VOLTAR AO INÍCIO</button>
+    </div>
+
+    <div id="modal-baixa">
+        <h3 style="margin:0 0 15px 0">Finalizar Chamado <span id="baixa-ticket-id"></span></h3>
+        <label>ANALISTA RESPONSÁVEL</label>
+        <select id="f-analista"><option>Gustavo Filipe</option><option>Lucas Delgado</option></select>
+        <label>SOLUÇÃO TÉCNICA</label>
+        <textarea id="f-solucao" rows="4" placeholder="O que foi feito?"></textarea>
+        <button class="btn-main btn-red" id="btn-confirmar-baixa">CONFIRMAR E DAR BAIXA</button>
+        <button class="btn-main btn-outline" onclick="fecharModalBaixa()">CANCELAR</button>
+    </div>
+
+    <div id="admin-panel">
+        <div class="sidebar">
+            <div style="padding:25px; font-weight:800; color:var(--hsr-red); font-size:18px">HSR ADMIN</div>
+            <div class="nav-item active" onclick="alternarAbas('dashboard')"><i class="bi bi-grid-fill"></i> Atendimento</div>
+            <div class="nav-item" onclick="alternarAbas('relatorios')"><i class="bi bi-file-earmark-check"></i> Histórico / Resolvidos</div>
+            <div style="position: absolute; bottom: 20px; width: 260px; border-top: 1px solid #333; padding-top: 10px;">
+                <div class="nav-item" onclick="location.reload()"><i class="bi bi-door-open"></i> Sair</div>
+            </div>
+        </div>
+        
+        <div class="main">
+            <div class="search-container">
+                <input type="text" id="admin-search" class="search-bar" placeholder="🔍 Buscar por número do chamado ou nome do solicitante..." oninput="filtrarGeral()">
+            </div>
+
+            <div id="aba-dashboard">
+                <div class="stats-grid">
+                    <div class="stat-card"><small>Chamados Abertos</small><div class="val" id="count-ativos">0</div></div>
+                    <div class="stat-card"><small>Resolvidos</small><div class="val" id="count-fim" style="color:#10b981">0</div></div>
+                    <div class="stat-card"><small>Total Acumulado</small><div class="val" id="count-total" style="color:#3b82f6">0</div></div>
+                    <div class="stat-card"><small>Status</small><div class="val" style="color:#10b981; font-size:14px">Conectado</div></div>
+                </div>
+
+                <table id="tabela-ativos">
+                    <thead><tr><th>Nº / Solicitante</th><th>Descrição</th><th>Ação</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div id="aba-relatorios" style="display:none">
+                <h3 style="margin:0 0 15px 0">Histórico de Atendimentos</h3>
+                <table id="tabela-historico">
+                    <thead><tr><th>Protocolo</th><th>Solicitante</th><th>Analista</th><th>Solução</th><th>Data Finalizado</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+        import { getDatabase, ref, push, set, onValue, remove } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeCdqt1zaJl3Qd84epZjFIWeFld8l2qx0",
+            authDomain: "sistemachamadoshsr.firebaseapp.com",
+            projectId: "sistemachamadoshsr",
+            databaseURL: "https://sistemachamadoshsr-default-rtdb.firebaseio.com/",
+            appId: "1:397352108078:web:26c803bba78b44ef215fbf"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        let currentTicket = null;
+        let ativosCache = [];
+        let historicoCache = [];
+
+        window.mostrarTela = (id) => {
+            document.getElementById('home-screen').style.display = 'none';
+            document.getElementById('client-form').style.display = 'none';
+            document.getElementById('admin-panel').style.display = 'none';
+            document.getElementById(id).style.display = (id === 'admin-panel') ? 'grid' : 'block';
+        };
+
+        window.toggleData = () => {
+            document.getElementById('group-data').style.display = (document.getElementById('f-tipo').value === 'Agendamento') ? 'block' : 'none';
+        };
+
+        window.loginAdmin = () => { if (prompt("Senha Administrativa:") === "1234") { mostrarTela('admin-panel'); iniciarMonitoramento(); } };
+
+        window.alternarAbas = (aba) => {
+            document.getElementById('aba-dashboard').style.display = aba === 'dashboard' ? 'block' : 'none';
+            document.getElementById('aba-relatorios').style.display = aba === 'relatorios' ? 'block' : 'none';
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        };
+
+        document.getElementById('btn-enviar').onclick = async () => {
+            const ticketId = Math.floor(10000 + Math.random() * 90000);
+            const nome = document.getElementById('f-nome').value;
+            const cat = document.getElementById('f-categoria').value;
+            if(!nome) return alert("Por favor, preencha o seu nome.");
+
+            await push(ref(db, 'chamados'), {
+                ticketId, nome, categoria: cat, tipo: document.getElementById('f-tipo').value,
+                data: document.getElementById('f-data').value || "",
+                desc: document.getElementById('f-desc').value, criadoEm: new Date().toLocaleString()
+            });
+
+            document.getElementById('display-id').innerText = "#" + ticketId;
+            document.getElementById('btn-whatsapp').onclick = () => {
+                const msg = encodeURIComponent(`Olá Gustavo, gostaria de acompanhar o chamado #${ticketId} sobre ${cat}. Solicitante: ${nome}`);
+                window.open(`https://wa.me/5511955951771?text=${msg}`);
+            };
+            mostrarTela('success-screen');
+        };
+
+        window.abrirModalBaixa = (id, ticket, nome, cat, desc) => {
+            currentTicket = { id, ticket, nome, cat, desc };
+            document.getElementById('baixa-ticket-id').innerText = "#" + ticket;
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('modal-baixa').style.display = 'block';
+        };
+
+        window.fecharModalBaixa = () => {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('modal-baixa').style.display = 'none';
+        };
+
+        document.getElementById('btn-confirmar-baixa').onclick = async () => {
+            const solucao = document.getElementById('f-solucao').value;
+            if(!solucao) return alert("Descreva a solução aplicada.");
+            
+            await push(ref(db, 'historico'), {
+                ...currentTicket, analista: document.getElementById('f-analista').value,
+                solucao, finalizadoEm: new Date().toLocaleString()
+            });
+            await remove(ref(db, 'chamados/' + currentTicket.id));
+            fecharModalBaixa();
+        };
+
+        function iniciarMonitoramento() {
+            onValue(ref(db, 'chamados'), (s) => {
+                const data = s.val() || {};
+                ativosCache = Object.keys(data).map(key => ({ fbId: key, ...data[key] }));
+                filtrarGeral();
+            });
+            onValue(ref(db, 'historico'), (s) => {
+                const data = s.val() || {};
+                historicoCache = Object.keys(data).map(key => ({ ...data[key] })).reverse();
+                filtrarGeral();
+            });
+        }
+
+        window.filtrarGeral = () => {
+            const search = document.getElementById('admin-search').value.toLowerCase();
+            const tbodyAtivos = document.querySelector('#tabela-ativos tbody');
+            tbodyAtivos.innerHTML = "";
+            let countAtivos = 0;
+            ativosCache.forEach(t => {
+                if(t.nome.toLowerCase().includes(search) || String(t.ticketId).includes(search)) {
+                    countAtivos++;
+                    const badge = t.tipo === 'Imediato' ? 'bg-imediato' : 'bg-agendado';
+                    tbodyAtivos.innerHTML += `<tr>
+                        <td><span class="badge ${badge}">${t.tipo}</span> <span class="category-tag">${t.categoria}</span><b>${t.nome} (#${t.ticketId})</b></td>
+                        <td>${t.desc}</td>
+                        <td><button onclick="window.abrirModalBaixa('${t.fbId}','${t.ticketId}','${t.nome}','${t.categoria}','${t.desc}')" class="btn-red" style="padding:5px 10px; font-size:10px">DAR BAIXA</button></td>
+                    </tr>`;
+                }
+            });
+            const tbodyHist = document.querySelector('#tabela-historico tbody');
+            tbodyHist.innerHTML = "";
+            let countHist = 0;
+            historicoCache.forEach(t => {
+                if(t.nome.toLowerCase().includes(search) || String(t.ticket).includes(search)) {
+                    countHist++;
+                    tbodyHist.innerHTML += `<tr>
+                        <td>#${t.ticket}</td><td><b>${t.nome}</b><br><small>${t.cat}</small></td>
+                        <td><span style="font-weight:700">${t.analista}</span></td>
+                        <td>${t.solucao}</td><td>${t.finalizadoEm}</td>
+                    </tr>`;
+                }
+            });
+            document.getElementById('count-ativos').innerText = countAtivos;
+            document.getElementById('count-fim').innerText = countHist;
+            document.getElementById('count-total').innerText = countAtivos + countHist;
+        };
+    </script>
+</body>
+</html>

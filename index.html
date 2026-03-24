@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSR TELEFONIA | Desk Cloud v6.5</title>
+    <title>HSR TELEFONIA | Desk Cloud v6.6</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -30,7 +30,6 @@
         .bg-imediato { background: #fee2e2; color: #991b1b; }
         .bg-agendado { background: #fef3c7; color: #92400e; }
         .category-tag { font-size: 11px; color: var(--hsr-red); font-weight: 700; display: block; }
-        .time-info { font-size: 10px; color: #64748b; font-weight: 600; display: block; margin-top: 4px; }
         #modal-baixa { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; width: 500px; display: none; text-align: left;}
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1999; display: none; }
         input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid var(--border); box-sizing: border-box; font-family: inherit;}
@@ -139,7 +138,6 @@
             document.getElementById('aba-relatorios').style.display = aba === 'relatorios' ? 'block' : 'none';
         };
 
-        // Lógica Sequencial Corrigida
         document.getElementById('btn-enviar').onclick = async () => {
             const btn = document.getElementById('btn-enviar');
             btn.disabled = true; btn.innerText = "GERANDO...";
@@ -150,7 +148,7 @@
 
             const nome = document.getElementById('f-nome').value;
             const cat = document.getElementById('f-categoria').value;
-            if(!nome) return alert("Nome obrigatório.");
+            if(!nome) { btn.disabled = false; btn.innerText = "ENVIAR CHAMADO"; return alert("Nome obrigatório."); }
 
             await push(ref(db, 'chamados'), {
                 ticketId, nome, categoria: cat, tipo: document.getElementById('f-tipo').value,
@@ -160,7 +158,13 @@
 
             await set(ref(db, 'contador'), ticketId);
             document.getElementById('display-id').innerText = "#" + ticketId;
-            document.getElementById('btn-whatsapp').onclick = () => window.open(`https://wa.me/5511955951771?text=Acompanhar chamado #${ticketId}`);
+            
+            // Link do WhatsApp com número do chamado e nome
+            document.getElementById('btn-whatsapp').onclick = () => {
+                const texto = encodeURIComponent(`Olá Gustavo, gostaria de acompanhar o chamado #${ticketId}. Solicitante: ${nome}`);
+                window.open(`https://wa.me/5511955951771?text=${texto}`);
+            };
+
             mostrarTela('success-screen');
         };
 
@@ -206,7 +210,7 @@
             let gCount = 0, lCount = 0;
             const tbodyHist = document.querySelector('#tabela-historico tbody');
             tbodyHist.innerHTML = "";
-            historicoCache.reverse().forEach(t => {
+            historicoCache.slice().reverse().forEach(t => {
                 if(t.mesRef === currentMonth) { if(t.analista === "Gustavo Filipe") gCount++; else lCount++; }
                 tbodyHist.innerHTML += `<tr><td>#${t.ticket}</td><td><b>${t.nome}</b><br>${t.analista}</td><td>${t.solucao}</td><td><small>IN: ${t.abertura}<br>OUT: ${t.finalizadoEm}</small></td></tr>`;
             });

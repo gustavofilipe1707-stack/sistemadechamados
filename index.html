@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSR TELEFONIA | Desk Cloud v6.3</title>
+    <title>HSR TELEFONIA | Desk Cloud v6.4</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -20,7 +20,6 @@
         .btn-green { background: #25d366; color: white; }
         .btn-outline { background: white; color: var(--sidebar); border: 2px solid var(--border); }
         
-        /* --- ADMIN --- */
         .sidebar { background: var(--sidebar); color: white; padding: 20px 0; }
         .nav-item { padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #a2a3b7; transition: 0.3s; font-weight: 600; }
         .nav-item:hover, .nav-item.active { background: #2b2b40; color: white; border-left: 4px solid var(--hsr-red); }
@@ -30,9 +29,6 @@
         .stat-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
         .val { font-size: 28px; font-weight: 800; color: var(--hsr-red); }
 
-        .search-container { margin-bottom: 20px; }
-        .search-bar { width: 100%; padding: 15px; border-radius: 10px; border: 1px solid var(--border); box-shadow: 0 2px 5px rgba(0,0,0,0.05); outline: none; font-family: inherit; font-weight: 600; box-sizing: border-box;}
-
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
         th { background: #f1f5f9; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #1a1a2e; font-weight: 800; border-bottom: 2px solid #e2e8f0; }
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
@@ -41,6 +37,7 @@
         .bg-imediato { background: #fee2e2; color: #991b1b; }
         .bg-agendado { background: #fef3c7; color: #92400e; }
         .category-tag { font-size: 11px; color: var(--hsr-red); font-weight: 700; display: block; }
+        .time-info { font-size: 10px; color: #64748b; font-weight: 600; display: block; margin-top: 4px; }
 
         #modal-baixa { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; width: 500px; display: none; text-align: left;}
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1999; display: none; }
@@ -70,9 +67,15 @@
             <option value="Agendamento">Agendamento (Projetos / Treino)</option>
         </select>
 
-        <div id="group-data" style="display:none;">
-            <label>DATA DO AGENDAMENTO</label>
-            <input type="date" id="f-data">
+        <div id="group-data" style="display:none; gap: 10px; grid-template-columns: 1fr 1fr;">
+            <div style="flex:1">
+                <label>DATA</label>
+                <input type="date" id="f-data">
+            </div>
+            <div style="flex:1">
+                <label>HORÁRIO</label>
+                <input type="time" id="f-hora">
+            </div>
         </div>
 
         <label>2. CATEGORIA</label>
@@ -103,7 +106,7 @@
     <div id="success-screen">
         <i class="bi bi-check-circle-fill" style="font-size: 50px; color: #28a745;"></i>
         <h2>Chamado Gerado!</h2>
-        <p>Número do Chamado: <strong id="display-id" style="color: var(--hsr-red);">#0000</strong></p>
+        <p>Protocolo: <strong id="display-id" style="color: var(--hsr-red);">#0000</strong></p>
         <button class="btn-main btn-green" id="btn-whatsapp">
             <i class="bi bi-whatsapp"></i> ACOMPANHAR CHAMADO VIA WHATSAPP
         </button>
@@ -131,28 +134,25 @@
         </div>
         
         <div class="main">
-            <div class="search-container">
-                <input type="text" id="admin-search" class="search-bar" placeholder="🔍 Buscar por número do chamado ou nome do solicitante..." oninput="filtrarGeral()">
-            </div>
+            <div style="margin-bottom: 20px;"><input type="text" id="admin-search" style="width:100%; padding:15px; border-radius:10px; border:1px solid var(--border);" placeholder="🔍 Buscar chamado ou nome..." oninput="filtrarGeral()"></div>
 
             <div id="aba-dashboard">
                 <div class="stats-grid">
-                    <div class="stat-card"><small>Chamados Abertos</small><div class="val" id="count-ativos">0</div></div>
+                    <div class="stat-card"><small>Ativos</small><div class="val" id="count-ativos">0</div></div>
                     <div class="stat-card"><small>Resolvidos</small><div class="val" id="count-fim" style="color:#10b981">0</div></div>
-                    <div class="stat-card"><small>Total Acumulado</small><div class="val" id="count-total" style="color:#3b82f6">0</div></div>
-                    <div class="stat-card"><small>Status</small><div class="val" style="color:#10b981; font-size:14px">Conectado</div></div>
+                    <div class="stat-card"><small>Agendados</small><div class="val" id="count-agenda" style="color:#f59e0b">0</div></div>
+                    <div class="stat-card"><small>Total</small><div class="val" id="count-total" style="color:#3b82f6">0</div></div>
                 </div>
 
                 <table id="tabela-ativos">
-                    <thead><tr><th>Nº / Solicitante</th><th>Descrição</th><th>Ação</th></tr></thead>
+                    <thead><tr><th>Nº / Solicitante / Abertura</th><th>Descrição / Tipo</th><th>Ação</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
 
             <div id="aba-relatorios" style="display:none">
-                <h3 style="margin:0 0 15px 0">Histórico de Atendimentos</h3>
                 <table id="tabela-historico">
-                    <thead><tr><th>Protocolo</th><th>Solicitante</th><th>Analista</th><th>Solução</th><th>Data Finalizado</th></tr></thead>
+                    <thead><tr><th>Protocolo</th><th>Solicitante / Analista</th><th>Solução</th><th>Abertura</th><th>Finalização</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
@@ -185,10 +185,10 @@
         };
 
         window.toggleData = () => {
-            document.getElementById('group-data').style.display = (document.getElementById('f-tipo').value === 'Agendamento') ? 'block' : 'none';
+            document.getElementById('group-data').style.display = (document.getElementById('f-tipo').value === 'Agendamento') ? 'grid' : 'none';
         };
 
-        window.loginAdmin = () => { if (prompt("Senha Administrativa:") === "1234") { mostrarTela('admin-panel'); iniciarMonitoramento(); } };
+        window.loginAdmin = () => { if (prompt("Senha:") === "1234") { mostrarTela('admin-panel'); iniciarMonitoramento(); } };
 
         window.alternarAbas = (aba) => {
             document.getElementById('aba-dashboard').style.display = aba === 'dashboard' ? 'block' : 'none';
@@ -201,24 +201,26 @@
             const ticketId = Math.floor(10000 + Math.random() * 90000);
             const nome = document.getElementById('f-nome').value;
             const cat = document.getElementById('f-categoria').value;
-            if(!nome) return alert("Por favor, preencha o seu nome.");
+            const data = document.getElementById('f-data').value;
+            const hora = document.getElementById('f-hora').value;
+            if(!nome) return alert("Nome obrigatório.");
 
             await push(ref(db, 'chamados'), {
                 ticketId, nome, categoria: cat, tipo: document.getElementById('f-tipo').value,
-                data: document.getElementById('f-data').value || "",
-                desc: document.getElementById('f-desc').value, criadoEm: new Date().toLocaleString()
+                agendamento: data ? `${data} às ${hora}` : "",
+                desc: document.getElementById('f-desc').value, abertura: new Date().toLocaleString()
             });
 
             document.getElementById('display-id').innerText = "#" + ticketId;
             document.getElementById('btn-whatsapp').onclick = () => {
-                const msg = encodeURIComponent(`Olá Gustavo, gostaria de acompanhar o chamado #${ticketId} sobre ${cat}. Solicitante: ${nome}`);
+                const msg = encodeURIComponent(`Olá Gustavo, gostaria de acompanhar o chamado #${ticketId}. Solicitante: ${nome}`);
                 window.open(`https://wa.me/5511955951771?text=${msg}`);
             };
             mostrarTela('success-screen');
         };
 
-        window.abrirModalBaixa = (id, ticket, nome, cat, desc) => {
-            currentTicket = { id, ticket, nome, cat, desc };
+        window.abrirModalBaixa = (id, ticket, nome, cat, desc, abertura) => {
+            currentTicket = { id, ticket, nome, cat, desc, abertura };
             document.getElementById('baixa-ticket-id').innerText = "#" + ticket;
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('modal-baixa').style.display = 'block';
@@ -231,8 +233,7 @@
 
         document.getElementById('btn-confirmar-baixa').onclick = async () => {
             const solucao = document.getElementById('f-solucao').value;
-            if(!solucao) return alert("Descreva a solução aplicada.");
-            
+            if(!solucao) return alert("Descreva a solução.");
             await push(ref(db, 'historico'), {
                 ...currentTicket, analista: document.getElementById('f-analista').value,
                 solucao, finalizadoEm: new Date().toLocaleString()
@@ -258,34 +259,36 @@
             const search = document.getElementById('admin-search').value.toLowerCase();
             const tbodyAtivos = document.querySelector('#tabela-ativos tbody');
             tbodyAtivos.innerHTML = "";
-            let countAtivos = 0;
+            let countAtivos = 0; let countAgen = 0;
+
             ativosCache.forEach(t => {
                 if(t.nome.toLowerCase().includes(search) || String(t.ticketId).includes(search)) {
                     countAtivos++;
+                    if(t.agendamento) countAgen++;
                     const badge = t.tipo === 'Imediato' ? 'bg-imediato' : 'bg-agendado';
                     tbodyAtivos.innerHTML += `<tr>
-                        <td><span class="badge ${badge}">${t.tipo}</span> <span class="category-tag">${t.categoria}</span><b>${t.nome} (#${t.ticketId})</b></td>
-                        <td>${t.desc}</td>
-                        <td><button onclick="window.abrirModalBaixa('${t.fbId}','${t.ticketId}','${t.nome}','${t.categoria}','${t.desc}')" class="btn-red" style="padding:5px 10px; font-size:10px">DAR BAIXA</button></td>
+                        <td><b>${t.nome} (#${t.ticketId})</b><span class="time-info">Aberto em: ${t.abertura}</span></td>
+                        <td><span class="badge ${badge}">${t.tipo}</span><span class="category-tag">${t.categoria}</span>${t.agendamento ? '<b>P/ ' + t.agendamento + '</b>' : t.desc}</td>
+                        <td><button onclick="window.abrirModalBaixa('${t.fbId}','${t.ticketId}','${t.nome}','${t.categoria}','${t.desc}','${t.abertura}')" class="btn-red" style="padding:5px 10px; font-size:10px">BAIXA</button></td>
                     </tr>`;
                 }
             });
+
             const tbodyHist = document.querySelector('#tabela-historico tbody');
             tbodyHist.innerHTML = "";
-            let countHist = 0;
             historicoCache.forEach(t => {
                 if(t.nome.toLowerCase().includes(search) || String(t.ticket).includes(search)) {
-                    countHist++;
                     tbodyHist.innerHTML += `<tr>
-                        <td>#${t.ticket}</td><td><b>${t.nome}</b><br><small>${t.cat}</small></td>
-                        <td><span style="font-weight:700">${t.analista}</span></td>
-                        <td>${t.solucao}</td><td>${t.finalizadoEm}</td>
+                        <td>#${t.ticket}</td><td><b>${t.nome}</b><br><small>${t.analista}</small></td>
+                        <td>${t.solucao}</td><td>${t.abertura}</td><td>${t.finalizadoEm}</td>
                     </tr>`;
                 }
             });
+
             document.getElementById('count-ativos').innerText = countAtivos;
-            document.getElementById('count-fim').innerText = countHist;
-            document.getElementById('count-total').innerText = countAtivos + countHist;
+            document.getElementById('count-fim').innerText = historicoCache.length;
+            document.getElementById('count-agenda').innerText = countAgen;
+            document.getElementById('count-total').innerText = countAtivos + historicoCache.length;
         };
     </script>
 </body>

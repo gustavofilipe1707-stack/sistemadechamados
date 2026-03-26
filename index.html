@@ -23,16 +23,10 @@
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
         .val { font-size: 28px; font-weight: 800; color: var(--hsr-red); }
-        
-        /* BUSCA */
         .search-box { width: 100%; padding: 12px; margin-bottom: 20px; border-radius: 10px; border: 1px solid var(--border); font-family: inherit; font-size: 14px; outline: none; }
-
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 20px;}
         th { background: #f1f5f9; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #1a1a2e; font-weight: 800; border-bottom: 2px solid #e2e8f0; }
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; }
-        .bg-imediato { background: #fee2e2; color: #991b1b; }
-        .bg-agendado { background: #fef3c7; color: #92400e; }
         .category-tag { font-size: 11px; color: var(--hsr-red); font-weight: 700; display: block; }
         #modal-baixa { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; width: 500px; display: none; text-align: left;}
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1999; display: none; }
@@ -41,28 +35,28 @@
     </style>
 </head>
 <body>
-    <div class="overlay" id="overlay"></div>
+    <div class="overlay" id="overlay" onclick="window.fecharModalBaixa()"></div>
 
     <div id="home-screen">
         <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; width: 350px; border-top: 5px solid var(--hsr-red);">
             <img src="https://hsr.com.br/wp-content/uploads/2022/10/logo-hsr-specialist-researchers.png" style="width: 140px; margin-bottom: 20px;">
-            <button class="btn-main btn-outline" onclick="mostrarTela('client-form')">ABRIR CHAMADO</button>
-            <button class="btn-main btn-red" onclick="loginAdmin()">ADMINISTRAÇÃO</button>
+            <button class="btn-main btn-outline" onclick="window.mostrarTela('client-form')">ABRIR CHAMADO</button>
+            <button class="btn-main btn-red" onclick="window.loginAdmin()">ADMINISTRAÇÃO</button>
         </div>
     </div>
 
     <div id="client-form">
         <h2 style="text-align: left; margin:0 0 20px 0">Novo Chamado HSR</h2>
         <label>1. TIPO DE SOLICITAÇÃO</label>
-        <select id="f-tipo" onchange="toggleData()"><option value="Imediato">Imediato</option><option value="Agendamento">Agendamento</option></select>
+        <select id="f-tipo" onchange="window.toggleData()"><option value="Imediato">Imediato</option><option value="Agendamento">Agendamento</option></select>
         <div id="group-data" style="display:none; gap: 10px; grid-template-columns: 1fr 1fr;"><div style="flex:1"><label>DATA</label><input type="date" id="f-data"></div><div style="flex:1"><label>HORÁRIO</label><input type="time" id="f-hora"></div></div>
         <label>2. CATEGORIA</label>
         <select id="f-categoria">
             <option>Criação de fila discador vonix</option><option>Criação de fila discador Fastdialer</option>
             <option>Validação de fila</option><option>Criação de grupo</option><option>Configuração de grupo</option>
             <option>Analise de chamadas</option><option>Criação de ramal</option><option>Validação de porta 50/60</option>
-            <option>Configuração de audio</option><option>Verificação de maquina</option><option>Analise de estrutura</option>
-            <option>Treinamento HSR</option><option>Treinamento Fornecedores</option><option>Agendamento incio de projeto</option>
+            <option>Configuração de áudio</option><option>Verificação de máquina</option><option>Análise de estrutura</option>
+            <option>Treinamento HSR</option><option>Treinamento Fornecedores</option><option>Agendamento início de projeto</option>
         </select>
         <label>3. SEU NOME</label><input type="text" id="f-nome" placeholder="Nome ou Departamento">
         <label>4. DESCRIÇÃO</label><textarea id="f-desc" rows="3" placeholder="Detalhes..."></textarea>
@@ -85,18 +79,17 @@
         <label>SOLUÇÃO TÉCNICA</label>
         <textarea id="f-solucao" rows="4"></textarea>
         <button class="btn-main btn-red" id="btn-confirmar-baixa">CONFIRMAR E DAR BAIXA</button>
-        <button class="btn-main btn-outline" onclick="fecharModalBaixa()">CANCELAR</button>
+        <button class="btn-main btn-outline" onclick="window.fecharModalBaixa()">CANCELAR</button>
     </div>
 
     <div id="admin-panel">
         <div class="sidebar">
             <div style="padding:25px; font-weight:800; color:var(--hsr-red); font-size:18px">HSR ADMIN</div>
-            <div class="nav-item active" onclick="alternarAbas('dashboard')"><i class="bi bi-grid-fill"></i> Atendimento</div>
-            <div class="nav-item" onclick="alternarAbas('relatorios')"><i class="bi bi-file-earmark-check"></i> Histórico</div>
+            <div class="nav-item active" onclick="window.alternarAbas('dashboard')"><i class="bi bi-grid-fill"></i> Atendimento</div>
+            <div class="nav-item" onclick="window.alternarAbas('relatorios')"><i class="bi bi-file-earmark-check"></i> Histórico</div>
         </div>
         <div class="main">
-            <input type="text" id="admin-search" class="search-box" placeholder="🔍 Buscar por número, nome ou analista..." oninput="renderizar()">
-
+            <input type="text" id="admin-search" class="search-box" placeholder="🔍 Buscar por número, nome ou analista..." oninput="window.renderizar()">
             <div id="aba-dashboard">
                 <div class="stats-grid">
                     <div class="stat-card"><small>Gustavo (Mês)</small><div class="val" id="rank-gustavo" style="color:#10b981">0</div></div>
@@ -137,22 +130,23 @@
 
         window.toggleData = () => { document.getElementById('group-data').style.display = (document.getElementById('f-tipo').value === 'Agendamento') ? 'grid' : 'none'; };
 
-        window.loginAdmin = () => { if (prompt("Senha:") === "1234") { mostrarTela('admin-panel'); iniciarMonitoramento(); } };
+        window.loginAdmin = () => { if (prompt("Senha:") === "1234") { window.mostrarTela('admin-panel'); iniciarMonitoramento(); } };
 
         window.alternarAbas = (aba) => {
             document.getElementById('aba-dashboard').style.display = aba === 'dashboard' ? 'block' : 'none';
             document.getElementById('aba-relatorios').style.display = aba === 'relatorios' ? 'block' : 'none';
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            if(event) event.currentTarget.classList.add('active');
         };
 
         document.getElementById('btn-enviar').onclick = async () => {
             const btn = document.getElementById('btn-enviar');
+            const nome = document.getElementById('f-nome').value;
+            if(!nome) return alert("Nome obrigatório.");
             btn.disabled = true; btn.innerText = "GERANDO...";
 
             const snapshot = await get(child(ref(db), 'contador'));
             let ticketId = snapshot.exists() ? snapshot.val() + 1 : 1001;
-
-            const nome = document.getElementById('f-nome').value;
-            if(!nome) { btn.disabled = false; btn.innerText = "ENVIAR CHAMADO"; return alert("Nome obrigatório."); }
 
             await push(ref(db, 'chamados'), {
                 ticketId, nome, categoria: document.getElementById('f-categoria').value, 
@@ -163,12 +157,11 @@
 
             await set(ref(db, 'contador'), ticketId);
             document.getElementById('display-id').innerText = "#" + ticketId;
-            
             document.getElementById('btn-whatsapp').onclick = () => {
                 const texto = encodeURIComponent(`Olá Suporte, gostaria de acompanhar o chamado #${ticketId}. Solicitante: ${nome}`);
                 window.open(`https://wa.me/5511955951771?text=${texto}`);
             };
-            mostrarTela('success-screen');
+            window.mostrarTela('success-screen');
         };
 
         window.abrirModalBaixa = (id, ticket, nome, cat, desc, abertura) => {
@@ -178,25 +171,32 @@
             document.getElementById('modal-baixa').style.display = 'block';
         };
 
-        window.fecharModalBaixa = () => { document.getElementById('overlay').style.display = 'none'; document.getElementById('modal-baixa').style.display = 'none'; };
+        window.fecharModalBaixa = () => { 
+            document.getElementById('overlay').style.display = 'none'; 
+            document.getElementById('modal-baixa').style.display = 'none'; 
+        };
 
         document.getElementById('btn-confirmar-baixa').onclick = async () => {
             const solucao = document.getElementById('f-solucao').value;
             const analista = document.getElementById('f-analista').value;
             if(!solucao) return alert("Descreva a solução.");
-            await push(ref(db, 'historico'), { ...currentTicket, analista, solucao, finalizadoEm: new Date().toLocaleString(), mesRef: new Date().getMonth() });
-            await remove(ref(db, 'chamados/' + currentTicket.id));
-            fecharModalBaixa();
+            
+            try {
+                await push(ref(db, 'historico'), { ...currentTicket, analista, solucao, finalizadoEm: new Date().toLocaleString(), mesRef: new Date().getMonth() });
+                await remove(ref(db, 'chamados/' + currentTicket.id));
+                document.getElementById('f-solucao').value = "";
+                window.fecharModalBaixa();
+            } catch (e) { alert("Erro ao finalizar chamado."); }
         };
 
         function iniciarMonitoramento() {
             onValue(ref(db, 'chamados'), (s) => {
                 ativosCache = s.val() ? Object.keys(s.val()).map(k => ({ fbId: k, ...s.val()[k] })) : [];
-                renderizar();
+                window.renderizar();
             });
             onValue(ref(db, 'historico'), (s) => {
                 historicoCache = s.val() ? Object.keys(s.val()).map(k => ({ ...s.val()[k] })) : [];
-                renderizar();
+                window.renderizar();
             });
         }
 

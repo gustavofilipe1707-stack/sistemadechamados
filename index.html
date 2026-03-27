@@ -3,43 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSR TELEFONIA | Desk Cloud v7.0</title>
+    <title>HSR TELEFONIA | Desk Cloud v7.1</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root { --hsr-red: #e30613; --bg: #f8fafc; --sidebar: #1e1e2d; --card: #ffffff; --border: #e2e8f0; }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; color: #1e1e2d; }
-        
-        /* TELAS */
         #home-screen { position: fixed; inset: 0; background: var(--sidebar); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #client-form, #success-screen, #modal-baixa { display: none; padding: 40px; max-width: 600px; margin: 40px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); border-top: 6px solid var(--hsr-red); text-align: center; }
         #admin-panel { display: none; height: 100vh; grid-template-columns: 260px 1fr; }
-
-        /* ÍCONE DE TELEFONE NA HOME */
-        .phone-icon { width: 80px; height: 80px; background: var(--hsr-red); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(227, 6, 19, 0.4); }
-
+        .phone-icon-box { width: 80px; height: 80px; background: var(--hsr-red); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(227, 6, 19, 0.4); }
         .btn-main { width: 100%; padding: 15px; margin-top: 15px; border-radius: 10px; border: none; cursor: pointer; font-weight: 800; text-transform: uppercase; transition: 0.3s; }
         .btn-red { background: var(--hsr-red); color: white; }
-        .btn-green { background: #25d366; color: white; }
         .btn-outline { background: white; color: var(--sidebar); border: 2px solid var(--border); }
-        
         .sidebar { background: var(--sidebar); color: white; padding: 20px 0; }
         .nav-item { padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #a2a3b7; transition: 0.3s; font-weight: 600; }
         .nav-item.active { background: #2b2b40; color: white; border-left: 4px solid var(--hsr-red); }
-        
         .main { padding: 30px; overflow-y: auto; }
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
         .val { font-size: 28px; font-weight: 800; color: var(--hsr-red); }
-        
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 20px;}
         th { background: #f1f5f9; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #1a1a2e; font-weight: 800; border-bottom: 2px solid #e2e8f0; }
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-        
         .category-tag { font-size: 11px; color: var(--hsr-red); font-weight: 700; display: block; }
         #modal-baixa { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; width: 450px; display: none; text-align: left;}
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1999; display: none; }
-        
         input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid var(--border); box-sizing: border-box; font-family: inherit;}
         label { font-weight: 800; font-size: 11px; display: block; margin-top: 10px; color: #444; }
     </style>
@@ -48,7 +37,7 @@
     <div class="overlay" id="overlay" onclick="window.fecharModalBaixa()"></div>
 
     <div id="home-screen">
-        <div class="phone-icon"><i class="bi bi-telephone-fill"></i></div>
+        <div class="phone-icon-box"><i class="bi bi-telephone-fill"></i></div>
         <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; width: 320px; border-top: 5px solid var(--hsr-red);">
             <h2 style="margin-top:0; color: #1e1e2d">HSR TELEFONIA</h2>
             <button class="btn-main btn-outline" onclick="window.mostrarTela('client-form')">ABRIR CHAMADO</button>
@@ -58,10 +47,10 @@
 
     <div id="client-form">
         <h2 style="text-align: left; margin:0 0 20px 0">Novo Chamado HSR</h2>
-        <label>1. TIPO DE SOLICITAÇÃO</label>
+        <label>TIPO</label>
         <select id="f-tipo" onchange="window.toggleData()"><option value="Imediato">Imediato</option><option value="Agendamento">Agendamento</option></select>
-        <div id="group-data" style="display:none; gap: 10px; grid-template-columns: 1fr 1fr;"><div style="flex:1"><label>DATA</label><input type="date" id="f-data"></div><div style="flex:1"><label>HORÁRIO</label><input type="time" id="f-hora"></div></div>
-        <label>2. CATEGORIA</label>
+        <div id="group-data" style="display:none; gap: 10px; grid-template-columns: 1fr 1fr;"><div style="flex:1"><label>DATA</label><input type="date" id="f-data"></div><div style="flex:1"><label>HORA</label><input type="time" id="f-hora"></div></div>
+        <label>CATEGORIA</label>
         <select id="f-categoria">
             <option>Criação de fila discador vonix</option><option>Criação de fila discador Fastdialer</option>
             <option>Validação de fila</option><option>Criação de grupo</option><option>Configuração de grupo</option>
@@ -69,9 +58,9 @@
             <option>Configuração de áudio</option><option>Verificação de máquina</option><option>Análise de estrutura</option>
             <option>Treinamento HSR</option><option>Treinamento Fornecedores</option><option>Agendamento início de projeto</option>
         </select>
-        <label>3. SEU NOME</label><input type="text" id="f-nome" placeholder="Nome ou Departamento">
-        <label>4. DESCRIÇÃO</label><textarea id="f-desc" rows="3"></textarea>
-        <button class="btn-main btn-red" id="btn-enviar-db">ENVIAR CHAMADO</button>
+        <label>SEU NOME</label><input type="text" id="f-nome" placeholder="Nome ou Departamento">
+        <label>DESCRIÇÃO</label><textarea id="f-desc" rows="3"></textarea>
+        <button class="btn-main btn-red" id="btn-enviar-final">ENVIAR CHAMADO</button>
         <button class="btn-main btn-outline" onclick="location.reload()">VOLTAR</button>
     </div>
 
@@ -79,28 +68,27 @@
         <i class="bi bi-check-circle-fill" style="font-size: 50px; color: #28a745;"></i>
         <h2>Chamado Gerado!</h2>
         <p>Protocolo: <strong id="display-id" style="color: var(--hsr-red);">#0000</strong></p>
-        <button class="btn-main btn-green" id="btn-whatsapp"><i class="bi bi-whatsapp"></i> ACOMPANHAR VIA WHATSAPP</button>
         <button class="btn-main btn-outline" onclick="location.reload()">VOLTAR AO INÍCIO</button>
     </div>
 
     <div id="modal-baixa">
         <h3 style="margin:0 0 15px 0">Finalizar Chamado <span id="baixa-ticket-id"></span></h3>
-        <label>ANALISTA RESPONSÁVEL</label>
+        <label>ANALISTA</label>
         <select id="f-analista"><option>Gustavo Filipe</option><option>Lucas Delgado</option></select>
         <label>SOLUÇÃO TÉCNICA</label>
-        <textarea id="f-solucao" rows="4"></textarea>
-        <button class="btn-main btn-red" id="btn-finalizar-chamado">CONFIRMAR E DAR BAIXA</button>
+        <textarea id="f-solucao" rows="4" placeholder="O que foi feito?"></textarea>
+        <button class="btn-main btn-red" id="btn-finalizar-baixa-btn">CONFIRMAR E DAR BAIXA</button>
         <button class="btn-main btn-outline" onclick="window.fecharModalBaixa()">CANCELAR</button>
     </div>
 
     <div id="admin-panel">
         <div class="sidebar">
             <div style="padding:25px; font-weight:800; color:var(--hsr-red); font-size:18px">HSR ADMIN</div>
-            <div class="nav-item active" id="nav-dash" onclick="window.alternarAbas('dashboard')"><i class="bi bi-grid-fill"></i> Atendimento</div>
-            <div class="nav-item" id="nav-rel" onclick="window.alternarAbas('relatorios')"><i class="bi bi-file-earmark-check"></i> Histórico</div>
+            <div class="nav-item active" id="btn-dash" onclick="window.alternarAbas('dashboard')"><i class="bi bi-grid-fill"></i> Atendimento</div>
+            <div class="nav-item" id="btn-rel" onclick="window.alternarAbas('relatorios')"><i class="bi bi-file-earmark-check"></i> Histórico</div>
         </div>
         <div class="main">
-            <input type="text" id="admin-search" style="width:100%; padding:12px; margin-bottom:20px; border-radius:10px; border:1px solid var(--border);" placeholder="🔍 Buscar por número, nome ou analista..." oninput="window.renderizar()">
+            <input type="text" id="admin-search" style="width:100%; padding:12px; margin-bottom:20px; border-radius:10px; border:1px solid var(--border);" placeholder="🔍 Buscar chamado..." oninput="window.renderizar()">
             <div id="aba-dashboard">
                 <div class="stats-grid">
                     <div class="stat-card"><small>Gustavo (Mês)</small><div class="val" id="rank-gustavo">0</div></div>
@@ -134,7 +122,6 @@
         let ativosCache = [];
         let historicoCache = [];
 
-        // EXPOR FUNÇÕES PARA O WINDOW
         window.mostrarTela = (id) => {
             document.querySelectorAll('#home-screen, #client-form, #admin-panel, #success-screen').forEach(el => el.style.display = 'none');
             document.getElementById(id).style.display = (id === 'admin-panel') ? 'grid' : 'block';
@@ -147,8 +134,8 @@
         window.alternarAbas = (aba) => {
             document.getElementById('aba-dashboard').style.display = aba === 'dashboard' ? 'block' : 'none';
             document.getElementById('aba-relatorios').style.display = aba === 'relatorios' ? 'block' : 'none';
-            document.getElementById('nav-dash').classList.toggle('active', aba === 'dashboard');
-            document.getElementById('nav-rel').classList.toggle('active', aba === 'relatorios');
+            document.getElementById('btn-dash').classList.toggle('active', aba === 'dashboard');
+            document.getElementById('btn-rel').classList.toggle('active', aba === 'relatorios');
         };
 
         window.abrirModalBaixa = (fbId, ticket, nome, cat, desc, abertura) => {
@@ -161,15 +148,14 @@
         window.fecharModalBaixa = () => { 
             document.getElementById('overlay').style.display = 'none'; 
             document.getElementById('modal-baixa').style.display = 'none'; 
-            document.getElementById('f-solucao').value = "";
         };
 
-        // LÓGICA DE ENVIO
-        document.getElementById('btn-enviar-db').onclick = async () => {
+        // SALVAR
+        document.getElementById('btn-enviar-final').onclick = async () => {
             const nome = document.getElementById('f-nome').value;
             if(!nome) return alert("Nome obrigatório.");
-            const btn = document.getElementById('btn-enviar-db');
-            btn.disabled = true; btn.innerText = "GERANDO...";
+            const btn = document.getElementById('btn-enviar-final');
+            btn.disabled = true;
 
             const snapshot = await get(child(ref(db), 'contador'));
             let ticketId = snapshot.exists() ? snapshot.val() + 1 : 1001;
@@ -183,30 +169,28 @@
 
             await set(ref(db, 'contador'), ticketId);
             document.getElementById('display-id').innerText = "#" + ticketId;
-            document.getElementById('btn-whatsapp').onclick = () => {
-                const texto = encodeURIComponent(`Olá Suporte, gostaria de acompanhar o chamado #${ticketId}. Solicitante: ${nome}`);
-                window.open(`https://wa.me/5511955951771?text=${texto}`);
-            };
             window.mostrarTela('success-screen');
         };
 
-        // LÓGICA DE BAIXA (Onde estava travando)
-        document.getElementById('btn-finalizar-chamado').onclick = async () => {
+        // BAIXA (AQUI FOI CORRIGIDO)
+        document.getElementById('btn-finalizar-baixa-btn').onclick = async () => {
             const solucao = document.getElementById('f-solucao').value;
             const analista = document.getElementById('f-analista').value;
             if(!solucao) return alert("Descreva a solução.");
 
             try {
-                // 1. Move para o histórico
+                // Move para o histórico
                 await push(ref(db, 'historico'), { 
                     ...currentTicket, analista, solucao, 
                     finalizadoEm: new Date().toLocaleString(), 
                     mesRef: new Date().getMonth() 
                 });
-                // 2. Remove da fila principal usando o fbId
+                // Remove da fila USANDO O fbId correto
                 await remove(ref(db, `chamados/${currentTicket.fbId}`));
+                
                 window.fecharModalBaixa();
-            } catch (e) { alert("Erro ao processar baixa."); }
+                document.getElementById('f-solucao').value = "";
+            } catch (e) { alert("Erro ao finalizar!"); }
         };
 
         function iniciarMonitoramento() {

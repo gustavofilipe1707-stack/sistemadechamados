@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSR TELEFONIA | Desk Cloud v7.2</title>
+    <title>HSR TELEFONIA | Desk Cloud v7.3</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -20,7 +20,7 @@
         .nav-item { padding: 15px 25px; cursor: pointer; display: flex; align-items: center; gap: 10px; color: #a2a3b7; transition: 0.3s; font-weight: 600; }
         .nav-item.active { background: #2b2b40; color: white; border-left: 4px solid var(--hsr-red); }
         .main { padding: 30px; overflow-y: auto; }
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
         .val { font-size: 28px; font-weight: 800; color: var(--hsr-red); }
         table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
@@ -45,9 +45,6 @@
 
     <div id="client-form">
         <h2>Novo Chamado HSR</h2>
-        <label>Tipo</label>
-        <select id="f-tipo" onchange="window.toggleData()"><option value="Imediato">Imediato</option><option value="Agendamento">Agendamento</option></select>
-        <div id="group-data" style="display:none; gap: 10px; grid-template-columns: 1fr 1fr;"><div style="flex:1"><label>DATA</label><input type="date" id="f-data"></div><div style="flex:1"><label>HORA</label><input type="time" id="f-hora"></div></div>
         <label>Nome</label><input type="text" id="f-nome" placeholder="Seu nome">
         <label>Descrição</label><textarea id="f-desc" rows="3"></textarea>
         <button class="btn-main btn-red" id="btn-enviar-final">ENVIAR</button>
@@ -66,7 +63,7 @@
         <select id="f-analista"><option>Lucas Delgado</option><option>Gustavo Filipe</option></select>
         <label>Solução</label>
         <textarea id="f-solucao" rows="4"></textarea>
-        <button class="btn-main btn-red" id="btn-finalizar-real">CONFIRMAR BAIXA</button>
+        <button class="btn-main btn-red" id="btn-finalizar-force">CONFIRMAR E LIMPAR</button>
         <button class="btn-main btn-outline" onclick="window.fecharModalBaixa()">CANCELAR</button>
     </div>
 
@@ -121,8 +118,8 @@
             document.getElementById('aba-relatorios').style.display = aba === 'relatorios' ? 'block' : 'none';
         };
 
-        window.abrirModalBaixa = (fbId, ticket, nome, cat, desc, abertura) => {
-            currentTicket = { fbId, ticket, nome, cat, desc, abertura };
+        window.abrirModalBaixa = (fbId, ticket, nome, desc, abertura) => {
+            currentTicket = { fbId, ticket, nome, desc, abertura };
             document.getElementById('baixa-ticket-id').innerText = "#" + ticket;
             document.getElementById('overlay').style.display = 'block';
             document.getElementById('modal-baixa').style.display = 'block';
@@ -133,26 +130,32 @@
             document.getElementById('modal-baixa').style.display = 'none'; 
         };
 
-        // LÓGICA DE BAIXA REFORÇADA
-        document.getElementById('btn-finalizar-real').onclick = async () => {
+        // LÓGICA DE BAIXA COM LIMPEZA TRIPLA
+        document.getElementById('btn-finalizar-force').onclick = async () => {
             const solucao = document.getElementById('f-solucao').value;
             const analista = document.getElementById('f-analista').value;
             if(!solucao) return alert("Solução obrigatória.");
 
             try {
-                // Tenta encontrar o ID de qualquer forma (fbId ou ticketId)
-                const idParaRemover = currentTicket.fbId || currentTicket.ticket;
-                
+                // 1. Salva no Histórico
                 await push(ref(db, 'historico'), { 
                     ...currentTicket, analista, solucao, 
                     finalizadoEm: new Date().toLocaleString(), 
                     mesRef: new Date().getMonth() 
                 });
                 
-                await remove(ref(db, `chamados/${idParaRemover}`));
+                // 2. TENTATIVA TRIPLA DE REMOÇÃO
+                const idFb = currentTicket.fbId;
+                const idTk = currentTicket.ticket;
+
+                // Tenta apagar pela chave do Firebase
+                if(idFb) await remove(ref(db, `chamados/${idFb}`));
+                // Tenta apagar pelo número do ticket (caso o antigo tenha sido salvo assim)
+                if(idTk) await remove(ref(db, `chamados/${idTk}`));
+                
                 window.fecharModalBaixa();
                 document.getElementById('f-solucao').value = "";
-            } catch (e) { alert("Erro na baixa."); }
+            } catch (e) { alert("Erro crítico na baixa. Verifique o Console."); }
         };
 
         document.getElementById('btn-enviar-final').onclick = async () => {
@@ -184,7 +187,7 @@
             const tbodyAtivos = document.querySelector('#tabela-ativos tbody');
             tbodyAtivos.innerHTML = "";
             ativosCache.forEach(t => {
-                tbodyAtivos.innerHTML += `<tr><td>#${t.ticketId}</td><td>${t.nome}</td><td><button onclick="window.abrirModalBaixa('${t.fbId}','${t.ticketId}','${t.nome}','','${t.desc}','${t.abertura}')" class="btn-red" style="padding:5px">BAIXA</button></td></tr>`;
+                tbodyAtivos.innerHTML += `<tr><td>#${t.ticketId}</td><td>${t.nome}</td><td><button onclick="window.abrirModalBaixa('${t.fbId}','${t.ticketId}','${t.nome}','${t.desc}','${t.abertura}')" class="btn-red" style="padding:5px">BAIXA</button></td></tr>`;
             });
 
             const tbodyHist = document.querySelector('#tabela-historico tbody');

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HSR TELEFONIA | Desk Cloud v7.1</title>
+    <title>HSR TELEFONIA | Desk Cloud v7.2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -12,7 +12,7 @@
         #home-screen { position: fixed; inset: 0; background: var(--sidebar); z-index: 1000; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         #client-form, #success-screen, #modal-baixa { display: none; padding: 40px; max-width: 600px; margin: 40px auto; background: white; border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); border-top: 6px solid var(--hsr-red); text-align: center; }
         #admin-panel { display: none; height: 100vh; grid-template-columns: 260px 1fr; }
-        .phone-icon-box { width: 80px; height: 80px; background: var(--hsr-red); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 20px; box-shadow: 0 0 20px rgba(227, 6, 19, 0.4); }
+        .phone-icon { width: 80px; height: 80px; background: var(--hsr-red); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 40px; margin-bottom: 20px; }
         .btn-main { width: 100%; padding: 15px; margin-top: 15px; border-radius: 10px; border: none; cursor: pointer; font-weight: 800; text-transform: uppercase; transition: 0.3s; }
         .btn-red { background: var(--hsr-red); color: white; }
         .btn-outline { background: white; color: var(--sidebar); border: 2px solid var(--border); }
@@ -23,21 +23,19 @@
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: white; padding: 15px; border-radius: 12px; border: 1px solid var(--border); text-align: center; }
         .val { font-size: 28px; font-weight: 800; color: var(--hsr-red); }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 20px;}
-        th { background: #f1f5f9; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; color: #1a1a2e; font-weight: 800; border-bottom: 2px solid #e2e8f0; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+        th { background: #f1f5f9; padding: 12px; text-align: left; font-size: 11px; text-transform: uppercase; font-weight: 800; }
         td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-        .category-tag { font-size: 11px; color: var(--hsr-red); font-weight: 700; display: block; }
         #modal-baixa { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 2000; width: 450px; display: none; text-align: left;}
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1999; display: none; }
         input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border-radius: 8px; border: 1px solid var(--border); box-sizing: border-box; font-family: inherit;}
-        label { font-weight: 800; font-size: 11px; display: block; margin-top: 10px; color: #444; }
     </style>
 </head>
 <body>
     <div class="overlay" id="overlay" onclick="window.fecharModalBaixa()"></div>
 
     <div id="home-screen">
-        <div class="phone-icon-box"><i class="bi bi-telephone-fill"></i></div>
+        <div class="phone-icon"><i class="bi bi-telephone-fill"></i></div>
         <div style="background: white; padding: 40px; border-radius: 20px; text-align: center; width: 320px; border-top: 5px solid var(--hsr-red);">
             <h2 style="margin-top:0; color: #1e1e2d">HSR TELEFONIA</h2>
             <button class="btn-main btn-outline" onclick="window.mostrarTela('client-form')">ABRIR CHAMADO</button>
@@ -46,60 +44,49 @@
     </div>
 
     <div id="client-form">
-        <h2 style="text-align: left; margin:0 0 20px 0">Novo Chamado HSR</h2>
-        <label>TIPO</label>
+        <h2>Novo Chamado HSR</h2>
+        <label>Tipo</label>
         <select id="f-tipo" onchange="window.toggleData()"><option value="Imediato">Imediato</option><option value="Agendamento">Agendamento</option></select>
         <div id="group-data" style="display:none; gap: 10px; grid-template-columns: 1fr 1fr;"><div style="flex:1"><label>DATA</label><input type="date" id="f-data"></div><div style="flex:1"><label>HORA</label><input type="time" id="f-hora"></div></div>
-        <label>CATEGORIA</label>
-        <select id="f-categoria">
-            <option>Criação de fila discador vonix</option><option>Criação de fila discador Fastdialer</option>
-            <option>Validação de fila</option><option>Criação de grupo</option><option>Configuração de grupo</option>
-            <option>Analise de chamadas</option><option>Criação de ramal</option><option>Validação de porta 50/60</option>
-            <option>Configuração de áudio</option><option>Verificação de máquina</option><option>Análise de estrutura</option>
-            <option>Treinamento HSR</option><option>Treinamento Fornecedores</option><option>Agendamento início de projeto</option>
-        </select>
-        <label>SEU NOME</label><input type="text" id="f-nome" placeholder="Nome ou Departamento">
-        <label>DESCRIÇÃO</label><textarea id="f-desc" rows="3"></textarea>
-        <button class="btn-main btn-red" id="btn-enviar-final">ENVIAR CHAMADO</button>
+        <label>Nome</label><input type="text" id="f-nome" placeholder="Seu nome">
+        <label>Descrição</label><textarea id="f-desc" rows="3"></textarea>
+        <button class="btn-main btn-red" id="btn-enviar-final">ENVIAR</button>
         <button class="btn-main btn-outline" onclick="location.reload()">VOLTAR</button>
     </div>
 
     <div id="success-screen">
         <i class="bi bi-check-circle-fill" style="font-size: 50px; color: #28a745;"></i>
-        <h2>Chamado Gerado!</h2>
-        <p>Protocolo: <strong id="display-id" style="color: var(--hsr-red);">#0000</strong></p>
-        <button class="btn-main btn-outline" onclick="location.reload()">VOLTAR AO INÍCIO</button>
+        <h2>Enviado!</h2>
+        <button class="btn-main btn-outline" onclick="location.reload()">VOLTAR</button>
     </div>
 
     <div id="modal-baixa">
-        <h3 style="margin:0 0 15px 0">Finalizar Chamado <span id="baixa-ticket-id"></span></h3>
-        <label>ANALISTA</label>
-        <select id="f-analista"><option>Gustavo Filipe</option><option>Lucas Delgado</option></select>
-        <label>SOLUÇÃO TÉCNICA</label>
-        <textarea id="f-solucao" rows="4" placeholder="O que foi feito?"></textarea>
-        <button class="btn-main btn-red" id="btn-finalizar-baixa-btn">CONFIRMAR E DAR BAIXA</button>
+        <h3>Finalizar Chamado <span id="baixa-ticket-id"></span></h3>
+        <label>Analista Responsável</label>
+        <select id="f-analista"><option>Lucas Delgado</option><option>Gustavo Filipe</option></select>
+        <label>Solução</label>
+        <textarea id="f-solucao" rows="4"></textarea>
+        <button class="btn-main btn-red" id="btn-finalizar-real">CONFIRMAR BAIXA</button>
         <button class="btn-main btn-outline" onclick="window.fecharModalBaixa()">CANCELAR</button>
     </div>
 
     <div id="admin-panel">
         <div class="sidebar">
             <div style="padding:25px; font-weight:800; color:var(--hsr-red); font-size:18px">HSR ADMIN</div>
-            <div class="nav-item active" id="btn-dash" onclick="window.alternarAbas('dashboard')"><i class="bi bi-grid-fill"></i> Atendimento</div>
-            <div class="nav-item" id="btn-rel" onclick="window.alternarAbas('relatorios')"><i class="bi bi-file-earmark-check"></i> Histórico</div>
+            <div class="nav-item active" onclick="window.alternarAbas('dashboard')">Atendimento</div>
+            <div class="nav-item" onclick="window.alternarAbas('relatorios')">Histórico</div>
         </div>
         <div class="main">
-            <input type="text" id="admin-search" style="width:100%; padding:12px; margin-bottom:20px; border-radius:10px; border:1px solid var(--border);" placeholder="🔍 Buscar chamado..." oninput="window.renderizar()">
             <div id="aba-dashboard">
                 <div class="stats-grid">
-                    <div class="stat-card"><small>Gustavo (Mês)</small><div class="val" id="rank-gustavo">0</div></div>
                     <div class="stat-card"><small>Lucas (Mês)</small><div class="val" id="rank-lucas">0</div></div>
-                    <div class="stat-card"><small>Fila Atual</small><div class="val" id="count-ativos">0</div></div>
-                    <div class="stat-card"><small>Total Geral</small><div class="val" id="count-total" style="color:gray">0</div></div>
+                    <div class="stat-card"><small>Gustavo (Mês)</small><div class="val" id="rank-gustavo">0</div></div>
+                    <div class="stat-card"><small>Fila</small><div class="val" id="count-ativos">0</div></div>
                 </div>
-                <table id="tabela-ativos"><thead><tr><th>Protocolo / Solicitante</th><th>Descrição / Tipo</th><th>Ação</th></tr></thead><tbody></tbody></table>
+                <table id="tabela-ativos"><thead><tr><th>Ticket</th><th>Solicitante</th><th>Ação</th></tr></thead><tbody></tbody></table>
             </div>
             <div id="aba-relatorios" style="display:none">
-                <table id="tabela-historico"><thead><tr><th>Protocolo</th><th>Solicitante / Analista</th><th>Solução</th><th>Abertura / Fim</th></tr></thead><tbody></tbody></table>
+                <table id="tabela-historico"><thead><tr><th>Ticket</th><th>Analista</th><th>Solução</th></tr></thead><tbody></tbody></table>
             </div>
         </div>
     </div>
@@ -127,15 +114,11 @@
             document.getElementById(id).style.display = (id === 'admin-panel') ? 'grid' : 'block';
         };
 
-        window.toggleData = () => { document.getElementById('group-data').style.display = (document.getElementById('f-tipo').value === 'Agendamento') ? 'grid' : 'none'; };
-
         window.loginAdmin = () => { if (prompt("Senha:") === "1234") { window.mostrarTela('admin-panel'); iniciarMonitoramento(); } };
 
         window.alternarAbas = (aba) => {
             document.getElementById('aba-dashboard').style.display = aba === 'dashboard' ? 'block' : 'none';
             document.getElementById('aba-relatorios').style.display = aba === 'relatorios' ? 'block' : 'none';
-            document.getElementById('btn-dash').classList.toggle('active', aba === 'dashboard');
-            document.getElementById('btn-rel').classList.toggle('active', aba === 'relatorios');
         };
 
         window.abrirModalBaixa = (fbId, ticket, nome, cat, desc, abertura) => {
@@ -150,87 +133,71 @@
             document.getElementById('modal-baixa').style.display = 'none'; 
         };
 
-        // SALVAR
-        document.getElementById('btn-enviar-final').onclick = async () => {
-            const nome = document.getElementById('f-nome').value;
-            if(!nome) return alert("Nome obrigatório.");
-            const btn = document.getElementById('btn-enviar-final');
-            btn.disabled = true;
-
-            const snapshot = await get(child(ref(db), 'contador'));
-            let ticketId = snapshot.exists() ? snapshot.val() + 1 : 1001;
-
-            await push(ref(db, 'chamados'), {
-                ticketId, nome, categoria: document.getElementById('f-categoria').value, 
-                tipo: document.getElementById('f-tipo').value,
-                agendamento: document.getElementById('f-data').value ? `${document.getElementById('f-data').value} às ${document.getElementById('f-hora').value}` : "",
-                desc: document.getElementById('f-desc').value, abertura: new Date().toLocaleString()
-            });
-
-            await set(ref(db, 'contador'), ticketId);
-            document.getElementById('display-id').innerText = "#" + ticketId;
-            window.mostrarTela('success-screen');
-        };
-
-        // BAIXA (AQUI FOI CORRIGIDO)
-        document.getElementById('btn-finalizar-baixa-btn').onclick = async () => {
+        // LÓGICA DE BAIXA REFORÇADA
+        document.getElementById('btn-finalizar-real').onclick = async () => {
             const solucao = document.getElementById('f-solucao').value;
             const analista = document.getElementById('f-analista').value;
-            if(!solucao) return alert("Descreva a solução.");
+            if(!solucao) return alert("Solução obrigatória.");
 
             try {
-                // Move para o histórico
+                // Tenta encontrar o ID de qualquer forma (fbId ou ticketId)
+                const idParaRemover = currentTicket.fbId || currentTicket.ticket;
+                
                 await push(ref(db, 'historico'), { 
                     ...currentTicket, analista, solucao, 
                     finalizadoEm: new Date().toLocaleString(), 
                     mesRef: new Date().getMonth() 
                 });
-                // Remove da fila USANDO O fbId correto
-                await remove(ref(db, `chamados/${currentTicket.fbId}`));
                 
+                await remove(ref(db, `chamados/${idParaRemover}`));
                 window.fecharModalBaixa();
                 document.getElementById('f-solucao').value = "";
-            } catch (e) { alert("Erro ao finalizar!"); }
+            } catch (e) { alert("Erro na baixa."); }
+        };
+
+        document.getElementById('btn-enviar-final').onclick = async () => {
+            const snapshot = await get(child(ref(db), 'contador'));
+            let ticketId = snapshot.exists() ? snapshot.val() + 1 : 1001;
+            await push(ref(db, 'chamados'), {
+                ticketId, nome: document.getElementById('f-nome').value,
+                desc: document.getElementById('f-desc').value, abertura: new Date().toLocaleString()
+            });
+            await set(ref(db, 'contador'), ticketId);
+            window.mostrarTela('success-screen');
         };
 
         function iniciarMonitoramento() {
             onValue(ref(db, 'chamados'), (s) => {
                 ativosCache = s.val() ? Object.keys(s.val()).map(k => ({ fbId: k, ...s.val()[k] })) : [];
-                window.renderizar();
+                renderizar();
             });
             onValue(ref(db, 'historico'), (s) => {
                 historicoCache = s.val() ? Object.keys(s.val()).map(k => ({ ...s.val()[k] })) : [];
-                window.renderizar();
+                renderizar();
             });
         }
 
-        window.renderizar = () => {
-            const term = document.getElementById('admin-search').value.toLowerCase();
+        function renderizar() {
             const currentMonth = new Date().getMonth();
             let gCount = 0, lCount = 0;
 
             const tbodyAtivos = document.querySelector('#tabela-ativos tbody');
             tbodyAtivos.innerHTML = "";
             ativosCache.forEach(t => {
-                if (String(t.ticketId).includes(term) || t.nome.toLowerCase().includes(term)) {
-                    tbodyAtivos.innerHTML += `<tr><td><b>#${t.ticketId}</b> - ${t.nome}<br><small>${t.abertura}</small></td><td><span class="category-tag">${t.categoria}</span>${t.agendamento || t.desc}</td><td><button onclick="window.abrirModalBaixa('${t.fbId}','${t.ticketId}','${t.nome}','${t.categoria}','${t.desc}','${t.abertura}')" style="background:var(--hsr-red); color:white; border:none; padding:6px 12px; border-radius:5px; cursor:pointer; font-weight:700">BAIXA</button></td></tr>`;
-                }
+                tbodyAtivos.innerHTML += `<tr><td>#${t.ticketId}</td><td>${t.nome}</td><td><button onclick="window.abrirModalBaixa('${t.fbId}','${t.ticketId}','${t.nome}','','${t.desc}','${t.abertura}')" class="btn-red" style="padding:5px">BAIXA</button></td></tr>`;
             });
 
             const tbodyHist = document.querySelector('#tabela-historico tbody');
             tbodyHist.innerHTML = "";
             historicoCache.slice().reverse().forEach(t => {
-                if(t.mesRef === currentMonth) { if(t.analista === "Gustavo Filipe") gCount++; else lCount++; }
-                if (String(t.ticket).includes(term) || t.nome.toLowerCase().includes(term) || t.analista.toLowerCase().includes(term)) {
-                    tbodyHist.innerHTML += `<tr><td>#${t.ticket}</td><td><b>${t.nome}</b><br>${t.analista}</td><td>${t.solucao}</td><td><small>IN: ${t.abertura}<br>OUT: ${t.finalizadoEm}</small></td></tr>`;
-                }
+                if(t.mesRef === currentMonth) { if(t.analista === "Lucas Delgado") lCount++; else gCount++; }
+                tbodyHist.innerHTML += `<tr><td>#${t.ticket}</td><td>${t.analista}</td><td>${t.solucao}</td></tr>`;
             });
 
             document.getElementById('rank-gustavo').innerText = gCount;
             document.getElementById('rank-lucas').innerText = lCount;
             document.getElementById('count-ativos').innerText = ativosCache.length;
-            document.getElementById('count-total').innerText = ativosCache.length + historicoCache.length;
-        };
+        }
     </script>
 </body>
 </html>
